@@ -85,19 +85,22 @@ def main():
     # Sidebar for API Key configuration
     with st.sidebar:
         st.markdown('<h2>Configuration</h2>', unsafe_allow_html=True)
-        # Try loading from secrets first, then fall back to text input
-        api_key = st.secrets.get("GOOGLE_API_KEY")
+        
+        # Directly ask the user for their API key
+        api_key = st.text_input(
+            "Enter your Google API Key", 
+            type="password", 
+            help="Get your key from Google AI Studio."
+        )
+
         if not api_key:
-            api_key = st.text_input("API Key", type="password", help="Enter your Gemini API Key")
             st.markdown("""
                 <div class="info-box">
-                    <strong>Setup Instructions</strong><br>
-                    1. Get a key from Google AI Studio<br>
-                    2. Paste it above or add it to your Streamlit secrets (`secrets.toml`)
+                    Please enter your API key to enable analysis.
                 </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown('<div class="success-box">API Key loaded from secrets.</div>', unsafe_allow_html=True)
+            st.markdown('<div class="success-box">API Key entered.</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
