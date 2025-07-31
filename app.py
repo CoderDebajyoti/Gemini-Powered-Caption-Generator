@@ -4,18 +4,18 @@ from typing import Optional, Tuple
 import logging
 import google.generativeai as genai
 
-# Set up logging
+# Set up logging for Gemini Powered Caption Generator
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Caching the Model Initialization ---
+# --- Caching the Model Initialization for Gemini Powered Caption Generator ---
 @st.cache_resource
 def get_gemini_analyzer(api_key: str):
     """
-    Initializes and returns a cached GeminiVisionAnalyzer instance.
+    Initializes and returns a cached Gemini model instance for Gemini Powered Caption Generator.
     The @st.cache_resource decorator ensures this function is run only once.
     """
-    logger.info("Initializing GeminiVisionAnalyzer for the first time...")
+    logger.info("Initializing Gemini model for the first time...")
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name="gemini-1.5-pro")
@@ -27,8 +27,7 @@ def get_gemini_analyzer(api_key: str):
 
 def analyze_image(model, image: Image.Image, question: str) -> Tuple[bool, str]:
     """
-    Analyze an image using the provided Gemini model.
-    Now a standalone function that accepts the cached model.
+    Analyze an image using the provided Gemini model for Gemini Powered Caption Generator.
     """
     try:
         prompt = f"Please answer the question based on the image: {question}"
@@ -41,7 +40,7 @@ def analyze_image(model, image: Image.Image, question: str) -> Tuple[bool, str]:
 
 def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
     """
-    Validate an uploaded image file.
+    Validate an uploaded image file for Gemini Powered Caption Generator.
     """
     if uploaded_file is None:
         return False, None, "No file uploaded"
@@ -57,26 +56,94 @@ def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
 
 def main():
     """
-    Main Streamlit application function.
+    Main Streamlit application function for Gemini Powered Caption Generator.
     """
     st.set_page_config(
-        page_title="Image Processing App",
-        page_icon="",
+        page_title="Gemini Powered Caption Generator",
+        page_icon="♊",
         layout="wide"
     )
 
-    # Custom CSS remains the same
+    # Custom CSS for Gemini Powered Caption Generator: bold colors, new font, modern look
     st.markdown("""
         <style>
-            .main-header { font-size: 2.5rem; font-weight: bold; color: #1e3a8a; }
-            .info-box { background-color: #eef2ff; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid #3b82f6; }
-            .error-box { background-color: #fef2f2; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid #ef4444; }
-            .success-box { background-color: #f0fdfa; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid #10b981; }
-            .result-box { background-color: #ecfdf5; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid #0ea5e9; }
+            @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap');
+            html, body, [class*="css"]  {
+                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
+                background: #18122B !important;
+                color: #F7F7F7 !important;
+            }
+            .main-header {
+                font-size: 2.8rem;
+                font-weight: 700;
+                color: #A084E8;
+                letter-spacing: 1px;
+                margin-bottom: 0.7rem;
+                text-shadow: 0 2px 12px #5A189A;
+            }
+            .info-box, .error-box, .success-box, .result-box {
+                padding: 1.3rem 1.7rem;
+                border-radius: 1rem;
+                margin: 1.3rem 0;
+                box-shadow: 0 4px 24px 0 rgba(160,132,232,0.10);
+                font-size: 1.13rem;
+                border-left-width: 7px;
+                border-left-style: solid;
+                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
+            }
+            .info-box {
+                background: linear-gradient(90deg, #393053 60%, #635985 100%);
+                border-left-color: #A084E8;
+                color: #F7F7F7;
+            }
+            .error-box {
+                background: linear-gradient(90deg, #FF6B6B 60%, #F7D6D6 100%);
+                border-left-color: #D7263D;
+                color: #2D142C;
+            }
+            .success-box {
+                background: linear-gradient(90deg, #00C9A7 60%, #B8FFF9 100%);
+                border-left-color: #00C9A7;
+                color: #18122B;
+            }
+            .result-box {
+                background: linear-gradient(90deg, #A084E8 60%, #8BE8E5 100%);
+                border-left-color: #5A189A;
+                color: #18122B;
+            }
+            textarea, .stTextInput>div>div>input {
+                background: #393053 !important;
+                border-radius: 0.7rem !important;
+                border: 2px solid #A084E8 !important;
+                font-size: 1.08rem !important;
+                color: #F7F7F7 !important;
+            }
+            .stButton>button {
+                background: linear-gradient(90deg, #A084E8 60%, #8BE8E5 100%);
+                color: #18122B;
+                font-weight: 700;
+                border-radius: 0.7rem;
+                border: none;
+                padding: 0.7rem 1.4rem;
+                box-shadow: 0 2px 12px 0 rgba(160,132,232,0.18);
+                transition: background 0.2s, color 0.2s;
+                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
+            }
+            .stButton>button:hover {
+                background: linear-gradient(90deg, #5A189A 60%, #00C9A7 100%);
+                color: #F7F7F7;
+            }
+            .stTextArea textarea {
+                color: #F7F7F7 !important;
+            }
+            .stFileUploader, .stTextInput, .stTextArea {
+                background: #393053 !important;
+                border-radius: 0.7rem !important;
+            }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<h1 class="main-header">Gemini Vision Analyzer</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">Gemini Powered Caption Generator</h1>', unsafe_allow_html=True)
     
     # Initialize session state for storing results
     if "analysis_result" not in st.session_state:
@@ -121,7 +188,7 @@ def main():
         analyze_button = st.button("Analyze Image", use_container_width=True, type="primary")
 
         if analyze_button:
-            # Input validation
+            # Input validation for Gemini Powered Caption Generator
             if not api_key:
                 st.error("Please enter your API key.")
             elif not uploaded_file:
@@ -132,7 +199,7 @@ def main():
                 is_valid, image, _ = validate_image(uploaded_file)
                 if is_valid:
                     with st.spinner("Analyzing image... This may take a moment."):
-                        # Get the cached model
+                        # Get the cached model for Gemini Powered Caption Generator
                         model = get_gemini_analyzer(api_key)
                         if model:
                             success, response = analyze_image(model, image, question)
