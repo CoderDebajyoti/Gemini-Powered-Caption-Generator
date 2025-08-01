@@ -183,26 +183,46 @@ def main():
                 st.markdown(f'<div class="error-box">{message}</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<h2>Question & Analysis</h2>', unsafe_allow_html=True)
-        question = st.text_area("Enter your question", height=100, placeholder="What do you see in this image?")
-        analyze_button = st.button("Analyze Image", use_container_width=True, type="primary")
+        st.markdown('<h2>Caption Options</h2>', unsafe_allow_html=True)
+        user_description = st.text_input(
+            "Describe your photo (optional)",
+            placeholder="e.g. A group of friends at the beach during sunset"
+        )
+        caption_length = st.radio(
+            "Caption length",
+            options=["Short", "Moderate", "Long & Detailed"],
+            index=1,
+            horizontal=True
+        )
+        generate_button = st.button("Generate Caption", use_container_width=True, type="primary")
 
-        if analyze_button:
+        if generate_button:
             # Input validation for Gemini Powered Caption Generator
             if not api_key:
                 st.error("Please enter your API key.")
             elif not uploaded_file:
                 st.error("Please upload an image.")
-            elif not question.strip():
-                st.error("Please enter a question.")
             else:
                 is_valid, image, _ = validate_image(uploaded_file)
                 if is_valid:
-                    with st.spinner("Analyzing image... This may take a moment."):
+                    with st.spinner("Generating caption... This may take a moment."):
                         # Get the cached model for Gemini Powered Caption Generator
                         model = get_gemini_analyzer(api_key)
                         if model:
-                            success, response = analyze_image(model, image, question)
+                            # Build prompt
+                            prompt = "Write a"
+                            if caption_length == "Short":
+                                prompt += " short"
+                            elif caption_length == "Moderate":
+                                prompt += " moderate-length"
+                            else:
+                                prompt += " long, detailed"
+                            prompt += " caption for this photo."
+                            if user_description.strip():
+                                prompt += f" Here is some context: {user_description.strip()}"
+                            else:
+                                prompt += " Predict everything from the image."
+                            success, response = analyze_image(model, image, prompt)
                             if success:
                                 # Store result in session state
                                 st.session_state.analysis_result = response
@@ -210,10 +230,10 @@ def main():
                                 st.session_state.analysis_result = f'<div class="error-box">{response}</div>'
                         else:
                             st.session_state.analysis_result = '<div class="error-box">Could not initialize Gemini model.</div>'
-        
+
         # Display the result from session state
         if st.session_state.analysis_result:
-            st.markdown('<h3>Analysis Results</h3>', unsafe_allow_html=True)
+            st.markdown('<h3>Generated Caption</h3>', unsafe_allow_html=True)
             st.markdown(f'<div class="result-box">{st.session_state.analysis_result}</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
