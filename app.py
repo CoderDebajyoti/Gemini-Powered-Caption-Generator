@@ -4,50 +4,50 @@ from typing import Optional, Tuple
 import logging
 import google.generativeai as genai
 
-# Set up logging for Gemini Powered Caption Generator
+# Set up logging for the application
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# --- Caching the Model Initialization for Gemini Powered Caption Generator ---
+# --- Caching the Model Initialization ---
 @st.cache_resource
-def get_gemini_analyzer(api_key: str):
+def get_gemini_model(api_key: str):
     """
-    Initializes and returns a cached Gemini model instance for Gemini Powered Caption Generator.
-    The @st.cache_resource decorator ensures this function is run only once.
+    Initializes and returns a cached Gemini model instance.
+    The @st.cache_resource decorator ensures this function is run only once per session.
     """
     logger.info("Initializing Gemini model for the first time...")
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(model_name="gemini-1.5-pro")
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         return model
     except Exception as e:
         logger.error(f"Error initializing Gemini client: {str(e)}")
         st.error(f"Failed to initialize Gemini model. Please check your API key. Error: {e}")
         return None
 
-def analyze_image(model, image: Image.Image, question: str) -> Tuple[bool, str]:
+def generate_content(model, image: Image.Image, prompt: str) -> Tuple[bool, str]:
     """
-    Analyze an image using the provided Gemini model for Gemini Powered Caption Generator.
+    Generates content using the provided Gemini model and a prompt.
     """
     try:
-        prompt = f"Please answer the question based on the image: {question}"
         response = model.generate_content([prompt, image])
         return True, response.text
     except Exception as e:
-        error_message = f"Error during image analysis: {str(e)}"
+        error_message = f"Error during content generation: {str(e)}"
         logger.error(error_message)
         return False, error_message
 
 def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
     """
-    Validate an uploaded image file for Gemini Powered Caption Generator.
+    Validates the uploaded image file.
     """
     if uploaded_file is None:
         return False, None, "No file uploaded"
     try:
-        if uploaded_file.size > 10 * 1024 * 1024:
+        if uploaded_file.size > 10 * 1024 * 1024: # 10MB limit
             return False, None, "File size should be less than 10MB"
         image = Image.open(uploaded_file)
+        # Convert images with transparency to RGB
         if image.mode in ('RGBA', 'LA', 'P'):
             image = image.convert('RGB')
         return True, image, "Successfully validated image"
@@ -56,7 +56,7 @@ def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
 
 def main():
     """
-    Main Streamlit application function for Gemini Powered Caption Generator.
+    Main Streamlit application function.
     """
     st.set_page_config(
         page_title="Gemini Powered Caption Generator",
@@ -64,7 +64,7 @@ def main():
         layout="wide"
     )
 
-    # Custom CSS for Gemini Powered Caption Generator: bold colors, new font, modern look
+    # Custom CSS for a modern, dark-purple theme
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap');
@@ -89,34 +89,29 @@ def main():
                 font-size: 1.13rem;
                 border-left-width: 7px;
                 border-left-style: solid;
-                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
             }
             .info-box {
                 background: linear-gradient(90deg, #393053 60%, #635985 100%);
                 border-left-color: #A084E8;
-                color: #F7F7F7;
             }
             .error-box {
-                background: linear-gradient(90deg, #FF6B6B 60%, #F7D6D6 100%);
+                background: linear-gradient(90deg, #5c2222 60%, #8d4f4f 100%);
                 border-left-color: #D7263D;
-                color: #2D142C;
+                color: #F7F7F7;
             }
             .success-box {
-                background: linear-gradient(90deg, #00C9A7 60%, #B8FFF9 100%);
+                background: linear-gradient(90deg, #007562 60%, #00ab8e 100%);
                 border-left-color: #00C9A7;
-                color: #18122B;
             }
             .result-box {
-                background: linear-gradient(90deg, #A084E8 60%, #8BE8E5 100%);
-                border-left-color: #5A189A;
-                color: #18122B;
+                background: linear-gradient(90deg, #393053 60%, #635985 100%);
+                border-left-color: #8BE8E5;
+                color: #F7F7F7;
             }
-            textarea, .stTextInput>div>div>input {
-                background: #393053 !important;
-                border-radius: 0.7rem !important;
-                border: 2px solid #A084E8 !important;
-                font-size: 1.08rem !important;
-                color: #F7F7F7 !important;
+            .stTextInput label, .stFileUploader label, .stRadio label {
+                font-size: 1.2rem !important;
+                font-weight: 700 !important;
+                margin-bottom: 0.5rem;
             }
             .stButton>button {
                 background: linear-gradient(90deg, #A084E8 60%, #8BE8E5 100%);
@@ -126,59 +121,54 @@ def main():
                 border: none;
                 padding: 0.7rem 1.4rem;
                 box-shadow: 0 2px 12px 0 rgba(160,132,232,0.18);
-                transition: background 0.2s, color 0.2s;
-                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
+                transition: all 0.2s;
             }
             .stButton>button:hover {
                 background: linear-gradient(90deg, #5A189A 60%, #00C9A7 100%);
                 color: #F7F7F7;
-            }
-            .stTextArea textarea {
-                color: #F7F7F7 !important;
+                transform: translateY(-2px);
             }
             .stFileUploader, .stTextInput, .stTextArea {
                 background: #393053 !important;
                 border-radius: 0.7rem !important;
+                padding: 1rem;
             }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown('<h1 class="main-header">Gemini Powered Caption Generator</h1>', unsafe_allow_html=True)
     
-    # Initialize session state for storing results
+    # Initialize session state for storing the result
     if "analysis_result" not in st.session_state:
         st.session_state.analysis_result = ""
 
-    # Sidebar for API Key configuration
+    # --- Sidebar for Configuration ---
     with st.sidebar:
         st.markdown('<h2>Configuration</h2>', unsafe_allow_html=True)
-        
-        # Directly ask the user for their API key
         api_key = st.text_input(
             "Enter your Google API Key", 
             type="password", 
             help="Get your key from Google AI Studio."
         )
-
         if not api_key:
-            st.markdown("""
-                <div class="info-box">
-                    Please enter your API key to enable analysis.
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown('<div class="info-box">Please enter your API key to enable analysis.</div>', unsafe_allow_html=True)
         else:
-            st.markdown('<div class="success-box">API Key entered.</div>', unsafe_allow_html=True)
+            st.markdown('<div class="success-box">API Key entered. Ready to generate!</div>', unsafe_allow_html=True)
+        
+        st.expander("Usage Information").info(
+            "Please be aware of API rate limits on the free tier. If you encounter errors, you may need to wait or upgrade your API plan."
+        )
 
+    # --- Main Layout ---
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown('<h2>Image Upload</h2>', unsafe_allow_html=True)
-        uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"])
-
+        uploaded_file = st.file_uploader("Upload an image", type=["png", "jpg", "jpeg"], label_visibility="collapsed")
         if uploaded_file:
             is_valid, image, message = validate_image(uploaded_file)
             if is_valid:
-                st.image(image, caption="Uploaded Image", use_column_width=True)
+                st.image(image, caption="Uploaded Image", use_container_width=True)
             else:
                 st.markdown(f'<div class="error-box">{message}</div>', unsafe_allow_html=True)
 
@@ -186,7 +176,7 @@ def main():
         st.markdown('<h2>Caption Options</h2>', unsafe_allow_html=True)
         user_description = st.text_input(
             "Describe your photo (optional)",
-            placeholder="e.g. A group of friends at the beach during sunset"
+            placeholder="e.g. A group of friends at the beach"
         )
         caption_length = st.radio(
             "Caption length",
@@ -194,47 +184,58 @@ def main():
             index=1,
             horizontal=True
         )
-        generate_button = st.button("Generate Caption", use_container_width=True, type="primary")
+        generate_button = st.button("✨ Generate Caption", use_container_width=True)
 
         if generate_button:
-            # Input validation for Gemini Powered Caption Generator
-            if not api_key:
-                st.error("Please enter your API key.")
-            elif not uploaded_file:
-                st.error("Please upload an image.")
+            if not api_key or not uploaded_file:
+                st.error("Please provide an API Key and an image.")
             else:
                 is_valid, image, _ = validate_image(uploaded_file)
                 if is_valid:
-                    with st.spinner("Generating caption... This may take a moment."):
-                        # Get the cached model for Gemini Powered Caption Generator
-                        model = get_gemini_analyzer(api_key)
+                    with st.spinner("Crafting the perfect caption..."):
+                        model = get_gemini_model(api_key)
                         if model:
-                            # Build prompt
-                            prompt = "Write a"
-                            if caption_length == "Short":
-                                prompt += " short"
-                            elif caption_length == "Moderate":
-                                prompt += " moderate-length"
-                            else:
-                                prompt += " long, detailed"
-                            prompt += " caption for this photo."
+                            # Build a more structured prompt for better results
+                            prompt_parts = [
+                                "Act as a creative social media expert.",
+                                f"Generate a caption for the provided image. The caption's tone should be engaging and its length should be '{caption_length}'."
+                            ]
                             if user_description.strip():
-                                prompt += f" Here is some context: {user_description.strip()}"
-                            else:
-                                prompt += " Predict everything from the image."
-                            success, response = analyze_image(model, image, prompt)
-                            if success:
-                                # Store result in session state
-                                st.session_state.analysis_result = response
-                            else:
-                                st.session_state.analysis_result = f'<div class="error-box">{response}</div>'
+                                prompt_parts.append(f"Use this user-provided context: '{user_description.strip()}'.")
+                            
+                            prompt_parts.append(
+                                "After the caption, suggest one single relevant emoji, then on a new line suggest 5 relevant hashtags (without the # symbol, separated by commas)."
+                            )
+                            prompt_parts.append(
+                                "Format the response exactly like this:\n"
+                                "CAPTION: [Your generated caption here]\n"
+                                "EMOJI: [A single emoji here]\n"
+                                "HASHTAGS: [hashtag1, hashtag2, hashtag3, hashtag4, hashtag5]"
+                            )
+                            prompt = "\n".join(prompt_parts)
+                            
+                            success, response = generate_content(model, image, prompt)
+                            st.session_state.analysis_result = response if success else f'<div class="error-box">{response}</div>'
                         else:
                             st.session_state.analysis_result = '<div class="error-box">Could not initialize Gemini model.</div>'
-
+        
         # Display the result from session state
         if st.session_state.analysis_result:
-            st.markdown('<h3>Generated Caption</h3>', unsafe_allow_html=True)
-            st.markdown(f'<div class="result-box">{st.session_state.analysis_result}</div>', unsafe_allow_html=True)
+            st.markdown('<h3>Generated Content</h3>', unsafe_allow_html=True)
+            # Simple parsing of the structured response
+            try:
+                # Handle cases where the response might not be perfectly formatted
+                caption_part = st.session_state.analysis_result.split("CAPTION:")[1].split("EMOJI:")[0].strip()
+                emoji_part = st.session_state.analysis_result.split("EMOJI:")[1].split("HASHTAGS:")[0].strip()
+                hashtags_part = st.session_state.analysis_result.split("HASHTAGS:")[1].strip()
+                hashtags = [f"#{tag.strip()}" for tag in hashtags_part.split(',')]
+                
+                # Display parsed content
+                st.markdown(f'<div class="result-box"><p style="font-size: 1.2rem; margin-bottom: 0.5rem;">{caption_part} {emoji_part}</p><p style="font-size: 1rem; color: #d1c4e9;">{" ".join(hashtags)}</p></div>', unsafe_allow_html=True)
+            except IndexError:
+                # Fallback for unstructured or error responses
+                st.markdown(f'<div class="result-box">{st.session_state.analysis_result}</div>', unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
