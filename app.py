@@ -54,7 +54,7 @@ def main():
         layout="wide"
     )
 
-    # Custom CSS (no changes needed here)
+    # Custom CSS
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap');
@@ -147,38 +147,28 @@ def main():
                     hashtags_part = parts.get("HASHTAGS", "")
                     songs_part = parts.get("SONGS", "")
                     
-                    # --- FIX: Prepare the full text for the code box and clipboard ---
                     hashtags = [f"#{tag.strip()}" for tag in hashtags_part.split(',')]
                     full_post_text = f"{caption_part} {emoji_part}\n\n{' '.join(hashtags)}"
                     
                     st.code(full_post_text, language=None)
                     
-                    # --- FIX: More reliable copy button ---
                     if st.button("📋 Copy Post", key="copy_post"):
-                        # Use json.dumps for safe JavaScript string embedding
                         js_string = json.dumps(full_post_text)
                         st.components.v1.html(f"""
                             <script>
                                 navigator.clipboard.writeText({js_string})
-                                .then(() => {{
-                                    // You can optionally send a message back to Streamlit if needed
-                                }})
-                                .catch(err => {{
-                                    console.error('Failed to copy: ', err);
-                                }});
+                                .catch(err => {{ console.error('Failed to copy: ', err); }});
                             </script>
                         """, height=0)
                         st.toast("Post content copied to clipboard!")
 
-                    # --- NEW: Display song suggestions with clickable links ---
                     if songs_part:
                         st.markdown("---")
                         st.markdown("##### 🎵 Song Suggestions")
                         songs = [song.strip() for song in songs_part.split(',')]
                         for song in songs:
-                            search_query = urllib.parse.quote_plus(song)
-                            spotify_url = f"https://open.spotify.com/search/{search_query}"
-                            st.markdown(f"[{song}]({spotify_url})")
+                            yt_music_url = f"http://googleusercontent.com/music.youtube.com/0{urllib.parse.quote_plus(song)}"
+                            st.markdown(f"[{song}]({yt_music_url})")
 
                 except Exception as e:
                     st.error(f"Could not parse the AI's response. Error: {e}")
