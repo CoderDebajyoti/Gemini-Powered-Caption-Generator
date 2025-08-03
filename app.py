@@ -147,27 +147,26 @@ def main():
                     hashtags_part = parts.get("HASHTAGS", "")
                     songs_part = parts.get("SONGS", "")
                     
-                    hashtags = [f"#{tag.strip()}" for tag in hashtags_part.split(',')]
+                    hashtags = [f"{tag.strip()}" for tag in hashtags_part.split(',')]
                     full_post_text = f"{caption_part} {emoji_part}\n\n{' '.join(hashtags)}"
                     
                     st.code(full_post_text, language=None)
                     
-                    if st.button("📋 Copy Post", key="copy_post"):
-                        js_string = json.dumps(full_post_text)
-                        st.components.v1.html(f"""
-                            <script>
-                                navigator.clipboard.writeText({js_string})
-                                .catch(err => {{ console.error('Failed to copy: ', err); }});
-                            </script>
-                        """, height=0)
-                        st.toast("Post content copied to clipboard!")
+                    # if st.button("📋 Copy Post", key="copy_post"):
+                    #     js_string = json.dumps(full_post_text)
+                    #     st.components.v1.html(f"""
+                    #         <script>
+                    #             navigator.clipboard.writeText({js_string})
+                    #             .catch(err => {{ console.error('Failed to copy: ', err); }});
+                    #         </script>
+                    #     """, height=0)
+                    #     st.toast("Post content copied to clipboard!")
 
                     if songs_part:
                         st.markdown("---")
                         st.markdown("##### 🎵 Song Suggestions")
                         songs = [song.strip() for song in songs_part.split(',')]
                         for song in songs:
-                            # Higher+Love+-+Kygo+%26+Whitney+Houston
                             yt_music_url = f"http://youtube.com/results?search_query={song.replace(' ', '+')}"
                             st.markdown(f"[{song}]({yt_music_url})")
 
