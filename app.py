@@ -167,7 +167,8 @@ def main():
                         st.markdown("##### 🎵 Song Suggestions")
                         songs = [song.strip() for song in songs_part.split(',')]
                         for song in songs:
-                            yt_music_url = f"http://googleusercontent.com/music.youtube.com/0{urllib.parse.quote_plus(song)}"
+                            # Higher+Love+-+Kygo+%26+Whitney+Houston
+                            yt_music_url = f"http://youtube.com/results?search_query={song.replace(' ', '+')}"
                             st.markdown(f"[{song}]({yt_music_url})")
 
                 except Exception as e:
