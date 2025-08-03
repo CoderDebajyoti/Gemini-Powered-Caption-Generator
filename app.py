@@ -3,7 +3,8 @@ from PIL import Image
 from typing import Optional, Tuple
 import logging
 import google.generativeai as genai
-from streamlit_extras.stylable_container import stylable_container # --- NEW: Import for copy button styling ---
+import json
+import urllib.parse
 
 # Set up logging for the application
 logging.basicConfig(level=logging.INFO)
@@ -12,35 +13,29 @@ logger = logging.getLogger(__name__)
 # --- Caching the Model Initialization ---
 @st.cache_resource
 def get_gemini_model(api_key: str):
-    """
-    Initializes and returns a cached Gemini model instance.
-    """
+    """Initializes and returns a cached Gemini model instance."""
     logger.info("Initializing Gemini model for the first time...")
     try:
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         return model
     except Exception as e:
-        logger.error(f"Error initializing Gemini client: {str(e)}")
+        logger.error(f"Error initializing Gemini client: {e}")
         st.error(f"Failed to initialize Gemini model. Please check your API key. Error: {e}")
         return None
 
 def generate_content(model, image: Image.Image, prompt: str) -> Tuple[bool, str]:
-    """
-    Generates content using the provided Gemini model and a prompt.
-    """
+    """Generates content using the provided Gemini model and a prompt."""
     try:
         response = model.generate_content([prompt, image])
         return True, response.text
     except Exception as e:
-        error_message = f"Error during content generation: {str(e)}"
+        error_message = f"Error during content generation: {e}"
         logger.error(error_message)
         return False, error_message
 
 def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
-    """
-    Validates the uploaded image file.
-    """
+    """Validates the uploaded image file."""
     if uploaded_file is None:
         return False, None, "No file uploaded"
     try:
@@ -49,28 +44,21 @@ def validate_image(uploaded_file) -> Tuple[bool, Optional[Image.Image], str]:
         image = Image.open(uploaded_file).convert('RGB')
         return True, image, "Successfully validated image"
     except Exception as e:
-        return False, None, f"Invalid image file: {str(e)}"
+        return False, None, f"Invalid image file: {e}"
 
 def main():
-    """
-    Main Streamlit application function.
-    """
+    """Main Streamlit application function."""
     st.set_page_config(
         page_title="Gemini Powered Caption Generator",
         page_icon="♊",
         layout="wide"
     )
 
-    # Custom CSS
+    # Custom CSS (no changes needed here)
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap');
-            /* (Your existing CSS is great, no changes needed here) */
-            html, body, [class*="css"]  {
-                font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important;
-                background: #18122B !important;
-                color: #F7F7F7 !important;
-            }
+            html, body, [class*="css"]  { font-family: 'Fira Sans', 'Segoe UI', Arial, sans-serif !important; background: #18122B !important; color: #F7F7F7 !important; }
             .main-header { font-size: 2.8rem; font-weight: 700; color: #A084E8; letter-spacing: 1px; margin-bottom: 0.7rem; text-shadow: 0 2px 12px #5A189A; }
             .info-box, .error-box, .success-box, .result-box { padding: 1.3rem 1.7rem; border-radius: 1rem; margin: 1.3rem 0; box-shadow: 0 4px 24px 0 rgba(160,132,232,0.10); font-size: 1.13rem; border-left-width: 7px; border-left-style: solid; }
             .info-box { background: linear-gradient(90deg, #393053 60%, #635985 100%); border-left-color: #A084E8; }
@@ -89,7 +77,7 @@ def main():
     if "analysis_result" not in st.session_state:
         st.session_state.analysis_result = ""
 
-    # --- Sidebar ---
+    # Sidebar
     with st.sidebar:
         st.markdown('<h2>Configuration</h2>', unsafe_allow_html=True)
         api_key = st.text_input("Enter your Google API Key", type="password")
@@ -99,7 +87,7 @@ def main():
             st.markdown('<div class="success-box">API Key entered. Ready to generate!</div>', unsafe_allow_html=True)
         st.expander("Usage Information").info("Please be aware of API rate limits on the free tier.")
 
-    # --- Main Layout ---
+    # Main Layout
     col1, col2 = st.columns(2)
     with col1:
         st.markdown('<h2>Image Upload</h2>', unsafe_allow_html=True)
@@ -126,7 +114,6 @@ def main():
                     with st.spinner("Crafting the perfect post..."):
                         model = get_gemini_model(api_key)
                         if model:
-                            # --- NEW: Updated prompt to include song suggestions ---
                             prompt_parts = [
                                 "Act as a creative social media expert.",
                                 f"Generate a caption for the provided image. The caption's tone should be engaging and its length should be '{caption_length}'."
@@ -150,37 +137,50 @@ def main():
         
         if st.session_state.analysis_result:
             st.markdown('<h3>Generated Content</h3>', unsafe_allow_html=True)
-            with stylable_container(key="results_container", css_styles=".result-box { /* (already defined above) */ }") as container:
-                # --- NEW: Updated parsing logic for all parts ---
+            with st.container(border=True):
                 try:
                     lines = st.session_state.analysis_result.strip().split('\n')
-                    parts = {line.split(':')[0]: line.split(':', 1)[1].strip() for line in lines if ':' in line}
+                    parts = {line.split(':')[0].strip(): line.split(':', 1)[1].strip() for line in lines if ':' in line}
 
                     caption_part = parts.get("CAPTION", "")
                     emoji_part = parts.get("EMOJI", "")
                     hashtags_part = parts.get("HASHTAGS", "")
                     songs_part = parts.get("SONGS", "")
                     
-                    full_caption = f"{caption_part} {emoji_part}"
+                    # --- FIX: Prepare the full text for the code box and clipboard ---
                     hashtags = [f"#{tag.strip()}" for tag in hashtags_part.split(',')]
-                    songs = [song.strip() for song in songs_part.split(',')]
+                    full_post_text = f"{caption_part} {emoji_part}\n\n{' '.join(hashtags)}"
+                    
+                    st.code(full_post_text, language=None)
+                    
+                    # --- FIX: More reliable copy button ---
+                    if st.button("📋 Copy Post", key="copy_post"):
+                        # Use json.dumps for safe JavaScript string embedding
+                        js_string = json.dumps(full_post_text)
+                        st.components.v1.html(f"""
+                            <script>
+                                navigator.clipboard.writeText({js_string})
+                                .then(() => {{
+                                    // You can optionally send a message back to Streamlit if needed
+                                }})
+                                .catch(err => {{
+                                    console.error('Failed to copy: ', err);
+                                }});
+                            </script>
+                        """, height=0)
+                        st.toast("Post content copied to clipboard!")
 
-                    # --- NEW: Use st.expander for a cleaner look ---
-                    with st.expander("📝 **Caption & Hashtags**", expanded=True):
-                        st.markdown(f'<p style="font-size: 1.2rem; margin-bottom: 0.5rem;">{full_caption}</p>', unsafe_allow_html=True)
-                        st.code(" ".join(hashtags), language=None)
-                        if st.button("📋 Copy Caption", key="copy_caption"):
-                            st.toast("Caption copied to clipboard!")
-                            st.components.v1.html(f"<script>navigator.clipboard.writeText('{full_caption.replace('`', '').replace('$', '')}');</script>", height=0)
-
-
-                    if songs:
-                        with st.expander("🎵 **Song Suggestions**"):
-                            for song in songs:
-                                st.text(f"• {song}")
+                    # --- NEW: Display song suggestions with clickable links ---
+                    if songs_part:
+                        st.markdown("---")
+                        st.markdown("##### 🎵 Song Suggestions")
+                        songs = [song.strip() for song in songs_part.split(',')]
+                        for song in songs:
+                            search_query = urllib.parse.quote_plus(song)
+                            spotify_url = f"https://open.spotify.com/search/{search_query}"
+                            st.markdown(f"[{song}]({spotify_url})")
 
                 except Exception as e:
-                    # Fallback for unstructured or error responses
                     st.error(f"Could not parse the AI's response. Error: {e}")
                     st.markdown(f'<div class="result-box">{st.session_state.analysis_result}</div>', unsafe_allow_html=True)
 
