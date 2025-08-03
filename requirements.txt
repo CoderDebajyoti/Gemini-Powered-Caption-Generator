@@ -1,3 +1,4 @@
 streamlit
+streamlit-extras
 google-generativeai
 Pillow
