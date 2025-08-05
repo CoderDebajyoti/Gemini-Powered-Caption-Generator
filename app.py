@@ -152,15 +152,6 @@ def main():
                     
                     st.code(full_post_text, language=None)
                     
-                    # if st.button("📋 Copy Post", key="copy_post"):
-                    #     js_string = json.dumps(full_post_text)
-                    #     st.components.v1.html(f"""
-                    #         <script>
-                    #             navigator.clipboard.writeText({js_string})
-                    #             .catch(err => {{ console.error('Failed to copy: ', err); }});
-                    #         </script>
-                    #     """, height=0)
-                    #     st.toast("Post content copied to clipboard!")
 
                     if songs_part:
                         st.markdown("---")
