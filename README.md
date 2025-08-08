@@ -1,4 +1,4 @@
-# CaptionGen- 📸
+# CaptionGen 📸
 
 A powerful and easy-to-use web application built with Streamlit that leverages the Google Gemini 1.5 Pro model to analyze images and answer your questions about them.
 
