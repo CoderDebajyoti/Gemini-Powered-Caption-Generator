@@ -1,7 +1,3 @@
-Here’s your rewritten, polished, and fully GitHub-friendly `README.md`—with cleaned-up links (no unnecessary Google redirects), consistent formatting, and an even more professional tone.
-
----
-
 # ♊ Gemini Powered Caption Generator
 
 <p align="center">
@@ -117,5 +113,3 @@ Your browser will automatically open the app’s local address.
 This project is licensed under the **MIT License** – see the [LICENSE](https://github.com/CoderDebajyoti/CaptionGen/blob/main/LICENSE) file for details.
 
 ---
-
-If you want, I can also add a **Live Demo** section with a Streamlit Cloud or Hugging Face Space link so people can try it instantly without installing anything. That would make this README even more appealing for developers and potential users.
