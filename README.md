@@ -1,3 +1,7 @@
+Here’s your rewritten, polished, and fully GitHub-friendly `README.md`—with cleaned-up links (no unnecessary Google redirects), consistent formatting, and an even more professional tone.
+
+---
+
 # ♊ Gemini Powered Caption Generator
 
 <p align="center">
