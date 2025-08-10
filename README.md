@@ -98,7 +98,7 @@ Your browser will automatically open the app’s local address.
   <a href="https://github.com/CoderRadhyashyam">
     <img src="https://img.shields.io/badge/Radhyashyam_Naskar-%231DA1F2.svg?style=for-the-badge&logo=github&logoColor=white" alt="Radhyashyam Naskar">
   </a>
-  <a href="https://github.com/MaharufLaskar">
+  <a href="https://github.com/Digital-hacker">
     <img src="https://img.shields.io/badge/Maharuf_Laskar-%231DA1F2.svg?style=for-the-badge&logo=github&logoColor=white" alt="Maharuf Laskar">
   </a>
   <a href="https://github.com/PriyamoyMaji">
