@@ -113,3 +113,32 @@ Your browser will automatically open the app’s local address.
 This project is licensed under the **MIT License** – see the [LICENSE](https://github.com/CoderDebajyoti/CaptionGen/blob/main/LICENSE) file for details.
 
 ---
+
+## 🖼️ Screenshots
+
+<p align="center">
+  <img src="https://github.com/CoderDebajyoti/CaptionGen/blob/main/demo1.png?raw=true" alt="Main UI" width="70%">
+  <br>
+  <em>Main interface of Gemini Powered Caption Generator</em>
+</p>
+
+---
+
+## 🔍 How It Works
+
+1. **Upload an Image:**  
+   Choose any photo you want to generate a caption for.
+
+2. **(Optional) Describe Your Photo:**  
+   Add a short description to help the AI understand the context, or leave it blank for a full AI prediction.
+
+3. **Select Caption Length:**  
+   Pick from Short, Moderate, or Long & Detailed to control how much text you want.
+
+4. **Generate Content:**  
+   Click the button and let Gemini create a catchy caption, emoji, hashtags, and song suggestions for your post.
+
+5. **Copy & Share:**  
+   Instantly copy the generated content and use it on your favorite social media platform!
+
+---
