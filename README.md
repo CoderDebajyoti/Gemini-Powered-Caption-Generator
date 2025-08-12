@@ -18,7 +18,7 @@
   <a href="https://github.com/CoderDebajyoti/CaptionGen/issues">
     <img src="https://img.shields.io/github/issues/CoderDebajyoti/CaptionGen?style=for-the-badge&color=teal" alt="Issues">
   </a>
-  <a href="https://github.com/CoderDebajyoti/CaptionGen/blob/main/LICENSE">
+  <a href="https://github.com/CoderDebajyoti/CaptionGen/LICENSE">
     <img src="https://img.shields.io/github/license/CoderDebajyoti/CaptionGen?style=for-the-badge&color=blue" alt="License">
   </a>
   <a href="https://python.org">
