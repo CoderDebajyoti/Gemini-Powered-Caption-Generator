@@ -149,4 +149,3 @@ This project is licensed under the **MIT License** – see the [LICENSE](https:/
    Instantly copy the generated content and use it on your favorite social media platform!
 
 ---
-thank you
