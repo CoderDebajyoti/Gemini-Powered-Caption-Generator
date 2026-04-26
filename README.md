@@ -1,6 +1,6 @@
 # ♊ Gemini Powered Caption Generator
 
-#<p align="center">
+<p align="center">
   <img src="https://github.com/CoderDebajyoti/CaptionGen/blob/main/Caption.gif?raw=true" alt="Gemini Caption Generator Demo" width="75%">
 </p>
 
